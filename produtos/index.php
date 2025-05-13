@@ -1,7 +1,14 @@
 <?php
+session_start();
 $activePage = 'produtos'; // Define a página ativa
 require_once '../config/db.php';
 require_once '../includes/header.php';
+
+// Verifica se o usuário está logado
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../login.php'); // Redireciona para login
+    exit; // Para a execução
+}
 
 $stmt = $pdo->query("SELECT * FROM produtos");
 $produtos = $stmt->fetchAll(PDO::FETCH_ASSOC);

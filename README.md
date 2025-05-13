@@ -43,3 +43,15 @@ CREATE TABLE funcionarios (
     cargo VARCHAR(50) NOT NULL,
     telefone VARCHAR(20)
 );
+
+CREATE TABLE usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario VARCHAR(50) NOT NULL UNIQUE,
+    senha_hash VARCHAR(255) NOT NULL
+);
+
+INSERT INTO usuarios (usuario, senha_hash)
+VALUES (
+    'yuri',
+    SHA2('123', 256)
+);

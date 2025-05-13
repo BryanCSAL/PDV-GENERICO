@@ -1,7 +1,14 @@
 <?php
+session_start();
 $activePage = 'estoque'; // Define a página ativa
 require_once '../includes/header.php';
 require_once '../config/db.php';
+
+// Verifica se o usuário está logado
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../login.php'); // Redireciona para login
+    exit; // Para a execução
+}
 
 $stmt = $pdo->query("SELECT * FROM estoque");
 $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);

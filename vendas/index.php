@@ -1,7 +1,14 @@
 <?php
+session_start();
 $activePage = 'vendas'; // Define a página ativa
 require_once '../config/db.php';
 require_once '../includes/header.php';
+
+// Verifica se o usuário está logado
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../login.php'); // Redireciona para login
+    exit; // Para a execução
+}
 
 // Buscar vendas com produtos
 $stmt = $pdo->query("

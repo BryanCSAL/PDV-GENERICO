@@ -3,6 +3,12 @@ $activePage = 'estoque';
 require_once '../includes/header.php';
 require_once '../config/db.php';
 
+// Verifica se o usuário está logado
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../login.php'); // Redireciona para login
+    exit; // Para a execução
+}
+
 $id = $_GET['id'];
 $stmt = $pdo->prepare("SELECT * FROM estoque WHERE id = ?");
 $stmt->execute([$id]);
