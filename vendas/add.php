@@ -12,13 +12,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->beginTransaction();
         
         // Inserir venda
-        $stmt = $pdo->prepare("INSERT INTO vendas (data, cliente, total) VALUES (?, ?, ?)");
         $data = date('Y-m-d');
         $cliente = $_POST['cliente'];
-        $total = array_sum(array_map(function($id) {
-            return $produtos[array_search($id, array_column($produtos, 'id'))]['preco'] * $_POST['quantidade'][$id];
-        }, $_POST['produtos']));
+        $total = 0;
+
+        // Calcular total com foreach (mais seguro)
+        foreach ($_POST['produtos'] as $produto_id) {
+            $key = array_search($produto_id, array_column($produtos, 'id'));
+            if ($key !== false) {
+                $total += $produtos[$key]['preco'] * $_POST['quantidade'][$produto_id];
+            }
+        }
         
+        $stmt = $pdo->prepare("INSERT INTO vendas (data, cliente, total) VALUES (?, ?, ?)");
         $stmt->execute([$data, $cliente, $total]);
         $venda_id = $pdo->lastInsertId();
         
@@ -26,9 +32,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("INSERT INTO venda_produtos (venda_id, produto_id, quantidade, preco_unitario) VALUES (?, ?, ?, ?)");
         
         foreach ($_POST['produtos'] as $produto_id) {
-            $quantidade = $_POST['quantidade'][$produto_id];
-            $preco = $produtos[array_search($produto_id, array_column($produtos, 'id'))]['preco'];
-            $stmt->execute([$venda_id, $produto_id, $quantidade, $preco]);
+            $key = array_search($produto_id, array_column($produtos, 'id'));
+            if ($key !== false) {
+                $preco = $produtos[$key]['preco'];
+                $stmt->execute([$venda_id, $produto_id, $_POST['quantidade'][$produto_id], $preco]);
+            }
         }
         
         // Commit da transação
@@ -68,34 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
             </div>
             
-            <!-- Script para campos dinâmicos de quantidade -->
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    const select = document.querySelector('select[name="produtos[]"]');
-                    select.addEventListener('change', function() {
-                        const selected = Array.from(this.selectedOptions).map(opt => opt.value);
-                        const container = document.getElementById('quantidades-container');
-                        
-                        // Limpar container
-                        container.innerHTML = '';
-                        
-                        // Adicionar campos de quantidade
-                        selected.forEach(id => {
-                            const div = document.createElement('div');
-                            div.className = 'mb-2';
-                            div.innerHTML = `
-                                <label class="block text-gray-700 mb-1" for="quantidade_${id}">
-                                    Quantidade para <?= $produtos[array_search($id, array_column($produtos, 'id'))]['produto'] ?>
-                                </label>
-                                <input type="number" name="quantidade[${id}]" min="1" required
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-800">
-                            `;
-                            container.appendChild(div);
-                        });
-                    });
-                });
-            </script>
-            
+            <!-- Campos dinâmicos de quantidade -->
             <div id="quantidades-container" class="mb-4"></div>
             
             <div class="flex justify-end">
@@ -109,5 +90,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const select = document.querySelector('select[name="produtos[]"]');
+        const container = document.getElementById('quantidades-container');
+
+        function updateQuantities() {
+            const selected = Array.from(select.selectedOptions).map(opt => opt.value);
+            container.innerHTML = '';
+
+            selected.forEach(id => {
+                const div = document.createElement('div');
+                div.className = 'mb-2';
+
+                div.innerHTML = `
+                    <label class="block text-gray-700 mb-1" for="quantidade_${id}">
+                        Quantidade para <?= $produtos[array_search($id, array_column($produtos, 'id'))]['produto'] ?>
+                    </label>
+                    <input type="number" name="quantidade[${id}]" min="1" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-800">
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        select.addEventListener('change', updateQuantities);
+        updateQuantities(); // Carregar campos iniciais
+    });
+</script>
 
 <?php require_once '../includes/footer.php'; ?>
