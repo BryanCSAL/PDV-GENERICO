@@ -1,4 +1,5 @@
 <?php
+session_start();
 $activePage = 'estoque';
 require_once '../includes/header.php';
 require_once '../config/db.php';

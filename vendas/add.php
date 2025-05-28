@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cliente = $_POST['cliente'];
         $total = 0;
 
-        // Calcular total com foreach (mais seguro)
+        // Calcular total com foreach 
         foreach ($_POST['produtos'] as $produto_id) {
             $key = array_search($produto_id, array_column($produtos, 'id'));
             if ($key !== false) {

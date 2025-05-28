@@ -17,6 +17,9 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="main-content ml-64 p-6">
     <header class="bg-white rounded-lg shadow p-4 mb-6 flex justify-between items-center">
         <h2 class="text-2xl font-bold text-red-800">Controle de Estoque</h2>
+        <a href="history.php" class="bg-red-800 hover:bg-red-700 text-yellow-400 font-bold py-2 px-4 rounded-lg flex items-center">
+            <i class="fas fa-plus mr-2"></i> Ver Histórico
+        </a>
         <a href="add.php" class="bg-red-800 hover:bg-red-700 text-yellow-400 font-bold py-2 px-4 rounded-lg flex items-center">
             <i class="fas fa-plus mr-2"></i> Adicionar Item
         </a>
@@ -47,6 +50,12 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <a href="edit.php?id=<?= $item['id'] ?>" class="text-yellow-600 hover:text-yellow-800 mr-2">
                                 <i class="fas fa-edit"></i>
                             </a>
+
+                            <!-- Novo botão -->
+                            <a href="add_quantity.php?id=<?= $item['id'] ?>" class="text-green-600 hover:text-green-800 mr-2" title="Acescentar Quantidade">
+                                <i class="fas fa-plus-circle"></i>
+                            </a>
+
                             <a href="delete.php?id=<?= $item['id'] ?>" class="text-red-600 hover:text-red-800" onclick="return confirm('Tem certeza que deseja excluir este item do estoque?')">
                                 <i class="fas fa-trash"></i>
                             </a>
